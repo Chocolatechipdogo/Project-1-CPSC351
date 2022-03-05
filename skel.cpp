@@ -77,6 +77,9 @@ void computeHash(const string& hashProgName)
 	.
 	.
 	*/
+
+	// MAIN OG ERROR
+
 	FILE* progOutput = popen( cmdLine.c_str(), "r");
 
 	//Make sure progOutput Worked
@@ -100,6 +103,8 @@ void computeHash(const string& hashProgName)
 	 .
 	 .
 	*/
+
+	// MAIN OG ERROR
 
 	char strToSend[] = { *hashValue };
 
@@ -143,6 +148,9 @@ void parentFunc(const string& hashProgName)
 	 .
 	 .
 	 */
+
+	 // MAIN OG ERROR
+
 	char strToSend[] = { *fileName.c_str()};
 
 	 /* TODO: Read the string sent by the child
