@@ -143,7 +143,7 @@ void parentFunc(const string& hashProgName)
 	 .
 	 .
 	 */
-	char strToSend[] = { fileName.c_str()};
+	char strToSend[] = { *fileName.c_str()};
 
 	 /* TODO: Read the string sent by the child
 	  .
