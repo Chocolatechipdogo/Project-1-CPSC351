@@ -77,7 +77,7 @@ void computeHash(const string& hashProgName)
 	.
 	.
 	*/
-	FILE* progOutput = popen( cmdLine, "r");
+	FILE* progOutput = popen( cmdLine.c_str(), "r");
 
 	//Make sure progOutput Worked
 	if (!progOutput)
@@ -85,6 +85,8 @@ void computeHash(const string& hashProgName)
 		perror("popen");
 		exit(-1);
 	}
+	/* The maximum output size */
+	#define MAX_OUTPUT_SIZE 1000
 	
 	if (fread(hashValue, sizeof(char), sizeof(char) * MAX_OUTPUT_SIZE, progOutput) < 0)
 	{
@@ -99,7 +101,7 @@ void computeHash(const string& hashProgName)
 	 .
 	*/
 
-	char strToSend[] = hashValue;
+	char strToSend[] = { *hashValue };
 
 
 
@@ -141,7 +143,7 @@ void parentFunc(const string& hashProgName)
 	 .
 	 .
 	 */
-	char strToSend[] = fileName;
+	char strToSend[] = { fileName.c_str()};
 
 	 /* TODO: Read the string sent by the child
 	  .
