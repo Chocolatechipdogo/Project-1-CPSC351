@@ -114,12 +114,15 @@ void parentFunc(const string& hashProgName)
 	/* I am the parent */
 
 	/** TODO: close the unused ends of two pipes. **/
+
+	/* Close the write end of the child-to-parent pipe */
 	if (close(childToParentPipe[WRITE_END]) < 0)
 	{
 		perror("close");
 		exit(-1);
 	}
 
+	/* Close the read end of the parent-to-child pipe */
 	if (close(parentToChildPipe[READ_END]) < 0)
 	{
 		perror("close");
@@ -138,12 +141,20 @@ void parentFunc(const string& hashProgName)
 	 .
 	 .
 	 */
+	char strToSend[] = fileName;
 
 	 /* TODO: Read the string sent by the child
 	  .
 	  .
 	  .
 	  */
+
+	  /* Read the string sent by the child */
+	if (read(childToParentPipe[READ_END], hashValue, sizeof(hashValue)) < 0)
+	{
+		perror("read");
+		exit(-1);
+	}
 
 	  /* Print the hash value */
 	  fprintf(stdout, "%s HASH VALUE: %s\n", hashProgName.c_str(), hashValue);
