@@ -56,11 +56,13 @@ void computeHash(const string& hashProgName)
 	
 	
 	/** TODO: Now, lets read a message from the parent **/
-	if (read(childToParentPipe[READ_END], strReceived, sizeof(strReceived)) < 0)
+	if (read(childToParentPipe[READ_END], fileNameRecv, sizeof(fileNameRecv)) < 0)
 	{
 		perror("read");
 		exit(-1);
 	}
+
+
 	/* Glue together a command line <PROGRAM NAME>. 
  	 * For example, sha512sum fileName.
  	 */
@@ -75,14 +77,31 @@ void computeHash(const string& hashProgName)
 	.
 	.
 	*/
-		
+	FILE* progOutput = popen( cmdLine, "r");
+
+	//Make sure progOutput Worked
+	if (!progOutput)
+	{
+		perror("popen");
+		exit(-1);
+	}
 	
-		
+	if (fread(hashValue, sizeof(char), sizeof(char) * MAX_OUTPUT_SIZE, progOutput) < 0)
+	{
+		perror("fread");
+		exit(-1);
+	}
+
+
 	/* TODO: Send a string to the parent 
  	 .
 	 .
 	 .
 	*/
+
+	char strToSend[] = hashValue;
+
+
 
 	/* The child terminates */
 	exit(0);
