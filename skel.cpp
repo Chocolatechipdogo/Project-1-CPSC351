@@ -56,6 +56,19 @@ void computeHash(const string& hashProgName)
 	
 	
 	/** TODO: Now, lets read a message from the parent **/
+
+	//Add this since double pipe does this when tring to read
+
+	/* Close write end of the child-to-parent pipe; this will
+		 * cause the parent's read() function to unblock.
+		 */
+	if (close(childToParentPipe[WRITE_END]) < 0)
+	{
+		perror("close");
+		exit(-1);
+	}
+
+	//Actually reads the stuff
 	if (read(childToParentPipe[READ_END], fileNameRecv, sizeof(fileNameRecv)) < 0)
 	{
 		perror("read");
@@ -88,10 +101,9 @@ void computeHash(const string& hashProgName)
 		perror("popen");
 		exit(-1);
 	}
-	/* The maximum output size */
-	#define MAX_OUTPUT_SIZE 1000
 	
-	if (fread(hashValue, sizeof(char), sizeof(char) * MAX_OUTPUT_SIZE, progOutput) < 0)
+	
+	if (fread(hashValue, sizeof(char), sizeof(char) * HASH_VALUE_LENGTH, progOutput) < 0)
 	{
 		perror("fread");
 		exit(-1);
@@ -108,6 +120,12 @@ void computeHash(const string& hashProgName)
 
 	char strToSend[] = { *hashValue };
 
+	/* Send a string to the parent */
+	if (write(childToParentPipe[WRITE_END], strToSend, sizeof(strToSend)) < 0)
+	{
+		perror("write");
+		exit(-1);
+	}
 
 
 	/* The child terminates */
@@ -153,6 +171,13 @@ void parentFunc(const string& hashProgName)
 
 	char strToSend[] = { *fileName.c_str()};
 
+	/* Send the string to the child */
+	if (write(parentToChildPipe[WRITE_END], strToSend, sizeof(strToSend)) < 0)
+	{
+		perror("write");
+		exit(-1);
+	}
+
 	 /* TODO: Read the string sent by the child
 	  .
 	  .
@@ -194,11 +219,20 @@ int main(int argc, char** argv)
 
 
 		/** TODO: create two pipes **/
-		//The pipe for parent-to-child communications
-		int parToCPipe[2];
+		/* Create a parent-to-child pipe */
+		if (pipe(parentToChildPipe) < 0)
+		{
+			perror("pipe");
+			exit(-1);
+		}
 
-		/* The pipe for the child-to-parent communication */
-		int cToParPipe[2];
+		/* Create a child-to-parent pipe */
+		if (pipe(childToParentPipe) < 0)
+		{
+			perror("pipe");
+			exit(-1);
+
+		}
 
 
 		/* Fork a child process and save the id */
@@ -214,13 +248,15 @@ int main(int argc, char** argv)
 		{
 			/** TODO: close the unused ends of two pipes **/
 
-			if (close(parToCPipe[WRITE_END]) < 0)
+			/* Close the write-end of the parent-to-child pipe */
+			if (close(parentToChildPipe[WRITE_END]) < 0)
 			{
 				perror("close");
 				exit(-1);
 			}
 
-			if (close(cToParPipe[READ_END]) < 0)
+			/* Close the read-end of the child-to-parent pipe */
+			if (close(childToParentPipe[READ_END]) < 0)
 			{
 				perror("close");
 				exit(-1);
